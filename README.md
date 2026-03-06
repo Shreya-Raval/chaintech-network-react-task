@@ -144,14 +144,3 @@ npm run preview
 | `npm run preview` | Preview production build |
 | `npm run lint` | Run ESLint |
 
----
-
-## 🌐 Live Demo
-
-🔗 [Live Demo](#) *(deployment link placeholder)*
-
----
-
-## 📄 License
-
-This project was built as a task for **Chaintech Network**.
