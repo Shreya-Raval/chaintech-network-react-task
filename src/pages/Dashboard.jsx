@@ -18,6 +18,15 @@ const Dashboard = () => {
   const { currentUser } = useAuth()
   const { cartItems, cartTotal, cartCount } = useCart()
   const [timeRemaining, setTimeRemaining] = useState(getSessionTimeRemaining())
+  const [totalProducts, setTotalProducts] = useState(0)
+
+  // Fetch total product count from API
+  useEffect(() => {
+    fetch('https://dummyjson.com/products?limit=0&select=id')
+      .then((res) => res.json())
+      .then((data) => setTotalProducts(data.total || 0))
+      .catch(() => setTotalProducts(0))
+  }, [])
 
   // Update session countdown every second
   useEffect(() => {
@@ -50,7 +59,7 @@ const Dashboard = () => {
   const stats = [
     {
       label: 'Total Products',
-      value: '24',
+      value: totalProducts.toString(),
       icon: ShoppingBag,
       gradient: 'from-primary-600 to-primary-900',
       iconBg: 'bg-primary/20',

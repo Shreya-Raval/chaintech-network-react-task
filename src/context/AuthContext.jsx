@@ -10,6 +10,7 @@ import {
   isSessionValid,
   updateUser,
   getUserByEmail,
+  updateSessionUser,
 } from '../utils/localStorage'
 
 export const AuthContext = createContext(null)
@@ -46,20 +47,33 @@ export const AuthProvider = ({ children }) => {
     setLoading(false)
   }, [])
 
-  // Check session validity every 30 seconds
+  // Auto-logout exactly when session expires
   useEffect(() => {
     if (!currentUser) return
 
-    const interval = setInterval(() => {
-      if (!isSessionValid()) {
-        setCurrentUser(null)
-        clearSession()
-        toast.error('Session expired. Please login again.')
-        navigate('/login', { replace: true })
-      }
-    }, 30 * 1000)
+    const session = getSession()
+    if (!session) return
 
-    return () => clearInterval(interval)
+    const remaining = session.expiresAt - Date.now()
+
+    if (remaining <= 0) {
+      // Already expired
+      setCurrentUser(null)
+      clearSession()
+      toast.error('Session expired. Please login again.')
+      navigate('/login', { replace: true })
+      return
+    }
+
+    // Set a precise timeout that fires at exactly the expiry moment
+    const timeout = setTimeout(() => {
+      setCurrentUser(null)
+      clearSession()
+      toast.error('Session expired. Please login again.')
+      navigate('/login', { replace: true })
+    }, remaining)
+
+    return () => clearTimeout(timeout)
   }, [currentUser, navigate])
 
   const login = useCallback((email, password) => {
@@ -112,12 +126,12 @@ export const AuthProvider = ({ children }) => {
     const success = updateUser(currentUser.email, userUpdates)
     if (!success) return { success: false, message: 'Failed to update profile' }
 
-    // Refresh session and currentUser state
+    // Update session user data WITHOUT resetting the TTL
     const updatedUser = {
       name: updates.name || currentUser.name,
       email: updates.email || currentUser.email,
     }
-    saveSession(updatedUser)
+    updateSessionUser(updatedUser)
     setCurrentUser(updatedUser)
 
     return { success: true }

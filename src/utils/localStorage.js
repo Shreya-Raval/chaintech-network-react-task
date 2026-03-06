@@ -83,6 +83,15 @@ export const getSessionTimeRemaining = () => {
   return remaining > 0 ? remaining : 0
 }
 
+/** Update user data in the session WITHOUT resetting the TTL */
+export const updateSessionUser = (updatedUser) => {
+  const session = getSession()
+  if (!session) return false
+  session.user = { ...session.user, ...updatedUser }
+  localStorage.setItem(SESSION_KEY, JSON.stringify(session))
+  return true
+}
+
 // ─── Cart Helpers (per-user) ──────────────────────────────
 
 /** Get the cart key for a specific user */
