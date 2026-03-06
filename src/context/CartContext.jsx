@@ -1,21 +1,33 @@
 import { createContext, useState, useEffect, useCallback } from 'react'
 import { getCart, saveCart, removeCart } from '../utils/localStorage'
+import { useAuth } from '../hooks/useAuth'
+import toast from 'react-hot-toast'
 
 export const CartContext = createContext(null)
 
 export const CartProvider = ({ children }) => {
+  const { currentUser } = useAuth()
+  const userEmail = currentUser?.email || ''
   const [cartItems, setCartItems] = useState([])
+  const [initialized, setInitialized] = useState(false)
 
-  // Load cart from localStorage on mount
+  // Load cart from localStorage when user changes
   useEffect(() => {
-    const storedCart = getCart()
-    setCartItems(storedCart)
-  }, [])
+    if (userEmail) {
+      const storedCart = getCart(userEmail)
+      setCartItems(storedCart)
+    } else {
+      setCartItems([])
+    }
+    setInitialized(true)
+  }, [userEmail])
 
-  // Persist cart to localStorage whenever it changes
+  // Persist cart to localStorage whenever it changes (after init)
   useEffect(() => {
-    saveCart(cartItems)
-  }, [cartItems])
+    if (initialized && userEmail) {
+      saveCart(cartItems, userEmail)
+    }
+  }, [cartItems, initialized, userEmail])
 
   const addToCart = useCallback((product) => {
     setCartItems((prev) => {
@@ -29,28 +41,38 @@ export const CartProvider = ({ children }) => {
       }
       return [...prev, { ...product, quantity: 1 }]
     })
+    toast.success('Added to cart!')
   }, [])
 
   const removeFromCart = useCallback((productId) => {
     setCartItems((prev) => prev.filter((item) => item.id !== productId))
+    toast.success('Removed from cart')
   }, [])
 
-  const updateQuantity = useCallback((productId, quantity) => {
-    if (quantity <= 0) {
-      setCartItems((prev) => prev.filter((item) => item.id !== productId))
-      return
-    }
-    setCartItems((prev) =>
-      prev.map((item) =>
-        item.id === productId ? { ...item, quantity } : item
+  const updateQuantity = useCallback((productId, delta) => {
+    setCartItems((prev) => {
+      const item = prev.find((i) => i.id === productId)
+      if (!item) return prev
+      const newQty = item.quantity + delta
+      if (newQty <= 0) {
+        return prev.filter((i) => i.id !== productId)
+      }
+      return prev.map((i) =>
+        i.id === productId ? { ...i, quantity: newQty } : i
       )
-    )
+    })
   }, [])
 
   const clearCart = useCallback(() => {
     setCartItems([])
-    removeCart()
-  }, [])
+    if (userEmail) removeCart(userEmail)
+    toast.success('Cart cleared')
+  }, [userEmail])
+
+  const isInCart = useCallback(
+    (productId) => cartItems.some((item) => item.id === productId),
+    [cartItems]
+  )
 
   const cartTotal = cartItems.reduce(
     (total, item) => total + item.price * item.quantity,
@@ -70,6 +92,7 @@ export const CartProvider = ({ children }) => {
     removeFromCart,
     updateQuantity,
     clearCart,
+    isInCart,
   }
 
   return (

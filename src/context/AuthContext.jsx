@@ -8,6 +8,8 @@ import {
   getSession,
   clearSession,
   isSessionValid,
+  updateUser,
+  getUserByEmail,
 } from '../utils/localStorage'
 
 export const AuthContext = createContext(null)
@@ -90,6 +92,37 @@ export const AuthProvider = ({ children }) => {
     return { success: true }
   }, [])
 
+  const updateProfile = useCallback((updates, currentPassword) => {
+    if (!currentUser) return { success: false, message: 'Not logged in' }
+
+    // Verify current password
+    const storedUser = getUserByEmail(currentUser.email)
+    if (!storedUser) return { success: false, message: 'User not found' }
+    if (currentPassword && storedUser.password !== currentPassword) {
+      return { success: false, message: 'Current password is incorrect' }
+    }
+
+    // Build updates object
+    const userUpdates = {}
+    if (updates.name) userUpdates.name = updates.name
+    if (updates.email) userUpdates.email = updates.email
+    if (updates.newPassword) userUpdates.password = updates.newPassword
+
+    // Update in localStorage
+    const success = updateUser(currentUser.email, userUpdates)
+    if (!success) return { success: false, message: 'Failed to update profile' }
+
+    // Refresh session and currentUser state
+    const updatedUser = {
+      name: updates.name || currentUser.name,
+      email: updates.email || currentUser.email,
+    }
+    saveSession(updatedUser)
+    setCurrentUser(updatedUser)
+
+    return { success: true }
+  }, [currentUser])
+
   const logout = useCallback(() => {
     clearSession()
     setCurrentUser(null)
@@ -102,6 +135,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    updateProfile,
     isAuthenticated: !!currentUser,
   }
 
