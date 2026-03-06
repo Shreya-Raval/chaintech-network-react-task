@@ -1,16 +1,16 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
-import { validateSession } from '../../utils/session'
+import { isSessionValid } from '../../utils/localStorage'
 
 /**
  * ProtectedRoute component
  * Checks for a valid session before rendering children.
- * If the session is expired or missing, redirects to /login.
+ * If the session is expired or missing → redirect to /login.
  */
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading, logout } = useAuth()
 
-  // Show nothing while checking auth state
+  // Show spinner while checking auth state
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-dark-bg">
@@ -20,8 +20,7 @@ const ProtectedRoute = ({ children }) => {
   }
 
   // Validate session TTL
-  if (!isAuthenticated || !validateSession()) {
-    // If session expired, clean up auth state
+  if (!isAuthenticated || !isSessionValid()) {
     if (isAuthenticated) {
       logout()
     }

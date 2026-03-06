@@ -10,6 +10,7 @@ import Profile from './pages/Profile'
 
 // Layout
 import ProtectedRoute from './components/layout/ProtectedRoute'
+import DashboardLayout from './components/layout/DashboardLayout'
 
 function App() {
   return (
@@ -20,12 +21,14 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Protected routes */}
+        {/* Protected routes — wrapped in DashboardLayout */}
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <DashboardLayout>
+                <Dashboard />
+              </DashboardLayout>
             </ProtectedRoute>
           }
         />
@@ -33,7 +36,9 @@ function App() {
           path="/products"
           element={
             <ProtectedRoute>
-              <Products />
+              <DashboardLayout>
+                <Products />
+              </DashboardLayout>
             </ProtectedRoute>
           }
         />
@@ -41,7 +46,9 @@ function App() {
           path="/cart"
           element={
             <ProtectedRoute>
-              <Cart />
+              <DashboardLayout>
+                <Cart />
+              </DashboardLayout>
             </ProtectedRoute>
           }
         />
@@ -49,7 +56,9 @@ function App() {
           path="/profile"
           element={
             <ProtectedRoute>
-              <Profile />
+              <DashboardLayout>
+                <Profile />
+              </DashboardLayout>
             </ProtectedRoute>
           }
         />

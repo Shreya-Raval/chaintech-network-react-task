@@ -1,56 +1,108 @@
 import { createContext, useState, useEffect, useCallback } from 'react'
-import { getUser, saveUser, removeUser } from '../utils/localStorage'
-import { createSession, validateSession, destroySession, refreshSession } from '../utils/session'
+import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
+import {
+  getUsers,
+  saveUser,
+  saveSession,
+  getSession,
+  clearSession,
+  isSessionValid,
+} from '../utils/localStorage'
 
 export const AuthContext = createContext(null)
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [loading, setLoading] = useState(true)
+// Demo user that is seeded if no users exist
+const DEMO_USER = {
+  name: 'Demo User',
+  email: 'demo@shopvault.com',
+  password: 'demo1234',
+}
 
-  // Check for existing valid session on mount
+export const AuthProvider = ({ children }) => {
+  const [currentUser, setCurrentUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const navigate = useNavigate()
+
+  // Initialize: seed demo user + restore session
   useEffect(() => {
-    const storedUser = getUser()
-    if (storedUser && validateSession()) {
-      setUser(storedUser)
-      setIsAuthenticated(true)
+    // Seed demo user if no users exist
+    const users = getUsers()
+    if (users.length === 0) {
+      saveUser(DEMO_USER)
+    }
+
+    // Restore session if valid
+    if (isSessionValid()) {
+      const session = getSession()
+      if (session?.user) {
+        setCurrentUser(session.user)
+      }
     } else {
-      destroySession()
+      clearSession()
     }
     setLoading(false)
   }, [])
 
-  const login = useCallback((userData) => {
-    saveUser(userData)
-    createSession(userData)
-    setUser(userData)
-    setIsAuthenticated(true)
+  // Check session validity every 30 seconds
+  useEffect(() => {
+    if (!currentUser) return
+
+    const interval = setInterval(() => {
+      if (!isSessionValid()) {
+        setCurrentUser(null)
+        clearSession()
+        toast.error('Session expired. Please login again.')
+        navigate('/login', { replace: true })
+      }
+    }, 30 * 1000)
+
+    return () => clearInterval(interval)
+  }, [currentUser, navigate])
+
+  const login = useCallback((email, password) => {
+    const users = getUsers()
+    const found = users.find(
+      (u) => u.email.toLowerCase() === email.toLowerCase() && u.password === password
+    )
+
+    if (found) {
+      const userData = { name: found.name, email: found.email }
+      saveSession(userData)
+      setCurrentUser(userData)
+      return { success: true }
+    }
+
+    return { success: false, message: 'Invalid email or password' }
+  }, [])
+
+  const register = useCallback((name, email, password) => {
+    const users = getUsers()
+    const exists = users.find(
+      (u) => u.email.toLowerCase() === email.toLowerCase()
+    )
+
+    if (exists) {
+      return { success: false, message: 'Email already registered' }
+    }
+
+    saveUser({ name, email, password })
+    return { success: true }
   }, [])
 
   const logout = useCallback(() => {
-    destroySession()
-    setUser(null)
-    setIsAuthenticated(false)
-  }, [])
-
-  const refresh = useCallback(() => {
-    const session = refreshSession()
-    if (!session) {
-      setUser(null)
-      setIsAuthenticated(false)
-      return false
-    }
-    return true
-  }, [])
+    clearSession()
+    setCurrentUser(null)
+    navigate('/login', { replace: true })
+  }, [navigate])
 
   const value = {
-    user,
-    isAuthenticated,
+    currentUser,
     loading,
     login,
+    register,
     logout,
-    refresh,
+    isAuthenticated: !!currentUser,
   }
 
   return (
