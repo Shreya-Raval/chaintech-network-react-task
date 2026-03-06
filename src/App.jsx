@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard'
 import Products from './pages/Products'
 import Cart from './pages/Cart'
 import Profile from './pages/Profile'
+import NotFound from './pages/NotFound'
 
 // Layout
 import ProtectedRoute from './components/layout/ProtectedRoute'
@@ -14,7 +15,7 @@ import DashboardLayout from './components/layout/DashboardLayout'
 
 function App() {
   return (
-    <div className="min-h-screen bg-dark-bg font-sora">
+    <div className="min-h-screen bg-slate-50 dark:bg-dark-bg font-sora transition-colors duration-300">
       <Routes>
         {/* Public routes */}
         <Route path="/" element={<Navigate to="/login" replace />} />
@@ -63,8 +64,8 @@ function App() {
           }
         />
 
-        {/* Catch-all: redirect to login */}
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        {/* 404 catch-all */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </div>
   )

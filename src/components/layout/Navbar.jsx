@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Menu, Moon, Sun, Clock } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
+import { useTheme } from '../../context/ThemeContext'
 import { getSessionTimeRemaining } from '../../utils/localStorage'
+import { useState } from 'react'
 
 const routeTitles = {
   '/dashboard': 'Dashboard',
@@ -13,8 +15,8 @@ const routeTitles = {
 
 const Navbar = ({ onToggleSidebar }) => {
   const { currentUser } = useAuth()
+  const { darkMode, toggleTheme } = useTheme()
   const location = useLocation()
-  const [darkMode, setDarkMode] = useState(true)
   const [timeRemaining, setTimeRemaining] = useState(getSessionTimeRemaining())
 
   // Session countdown timer — update every second
@@ -24,15 +26,6 @@ const Navbar = ({ onToggleSidebar }) => {
     }, 1000)
     return () => clearInterval(timer)
   }, [])
-
-  // Toggle dark/light class on <html>
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-  }, [darkMode])
 
   const pageTitle = routeTitles[location.pathname] || 'ShopVault'
 
@@ -45,20 +38,20 @@ const Navbar = ({ onToggleSidebar }) => {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
 
-  const isLowTime = timeRemaining < 60 * 1000 // Under 1 minute
+  const isLowTime = timeRemaining < 60 * 1000
 
   return (
-    <header className="sticky top-0 z-30 h-16 bg-slate-800 border-b border-slate-700/50 shadow-lg shadow-black/10">
+    <header className="sticky top-0 z-30 h-16 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700/50 shadow-sm dark:shadow-lg dark:shadow-black/10 transition-colors duration-300">
       <div className="flex items-center justify-between h-full px-4 lg:px-6">
         {/* Left side */}
         <div className="flex items-center gap-3">
           <button
             onClick={onToggleSidebar}
-            className="lg:hidden p-2 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+            className="lg:hidden p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors"
           >
             <Menu size={20} />
           </button>
-          <h1 className="text-lg font-semibold text-white">{pageTitle}</h1>
+          <h1 className="text-lg font-semibold text-slate-800 dark:text-white">{pageTitle}</h1>
         </div>
 
         {/* Right side */}
@@ -67,8 +60,8 @@ const Navbar = ({ onToggleSidebar }) => {
           <div
             className={`hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               isLowTime
-                ? 'bg-red-500/10 border border-red-500/30 text-red-400'
-                : 'bg-slate-700/50 border border-slate-600/30 text-slate-400'
+                ? 'bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/30 text-red-600 dark:text-red-400'
+                : 'bg-slate-100 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600/30 text-slate-500 dark:text-slate-400'
             }`}
           >
             <Clock size={13} className={isLowTime ? 'animate-pulse' : ''} />
@@ -77,8 +70,8 @@ const Navbar = ({ onToggleSidebar }) => {
 
           {/* Dark/Light toggle */}
           <button
-            onClick={() => setDarkMode(!darkMode)}
-            className="p-2 rounded-lg hover:bg-slate-700 text-slate-400 hover:text-white transition-colors"
+            onClick={toggleTheme}
+            className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-white transition-colors"
             title={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
           >
             {darkMode ? <Sun size={18} /> : <Moon size={18} />}

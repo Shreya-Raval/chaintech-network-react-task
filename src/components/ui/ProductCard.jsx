@@ -1,6 +1,7 @@
+import { memo } from 'react'
 import { ShoppingCart, Check, Star, StarHalf } from 'lucide-react'
 
-const ProductCard = ({ product, onAddToCart, isInCart }) => {
+const ProductCard = memo(({ product, onAddToCart, isInCart }) => {
   const {
     title,
     price,
@@ -31,16 +32,16 @@ const ProductCard = ({ product, onAddToCart, isInCart }) => {
     const empty = 5 - fullStars - (hasHalf ? 1 : 0)
     for (let i = 0; i < empty; i++) {
       stars.push(
-        <Star key={`empty-${i}`} size={13} className="text-slate-600" />
+        <Star key={`empty-${i}`} size={13} className="text-slate-300 dark:text-slate-600" />
       )
     }
     return stars
   }
 
   return (
-    <div className="group bg-dark-surface border border-slate-700/50 rounded-2xl overflow-hidden hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 hover:border-slate-600/50 transition-all duration-300">
+    <div className="group bg-white dark:bg-dark-surface border border-slate-200 dark:border-slate-700/50 rounded-2xl overflow-hidden hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/5 hover:border-slate-300 dark:hover:border-slate-600/50 transition-all duration-300">
       {/* Image */}
-      <div className="relative aspect-square bg-slate-800/50 overflow-hidden">
+      <div className="relative aspect-square bg-slate-100 dark:bg-slate-800/50 overflow-hidden">
         <img
           src={thumbnail}
           alt={title}
@@ -62,22 +63,22 @@ const ProductCard = ({ product, onAddToCart, isInCart }) => {
       {/* Content */}
       <div className="p-4 space-y-3">
         {/* Title */}
-        <h3 className="text-sm font-semibold text-slate-200 line-clamp-2 leading-snug min-h-[2.5rem]">
+        <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 line-clamp-2 leading-snug min-h-[2.5rem]">
           {title}
         </h3>
 
         {/* Rating */}
         <div className="flex items-center gap-1.5">
           <div className="flex items-center">{renderStars(rating)}</div>
-          <span className="text-xs text-slate-500">{rating.toFixed(1)}</span>
+          <span className="text-xs text-slate-400 dark:text-slate-500">{rating.toFixed(1)}</span>
         </div>
 
         {/* Price + Add to cart */}
         <div className="flex items-center justify-between pt-1">
           <div className="flex items-baseline gap-1.5">
-            <span className="text-lg font-bold text-white">${price.toFixed(2)}</span>
+            <span className="text-lg font-bold text-slate-900 dark:text-white">${price.toFixed(2)}</span>
             {showDiscount && (
-              <span className="text-xs text-slate-500 line-through">
+              <span className="text-xs text-slate-400 dark:text-slate-500 line-through">
                 ${(price / (1 - discountPercentage / 100)).toFixed(2)}
               </span>
             )}
@@ -88,8 +89,8 @@ const ProductCard = ({ product, onAddToCart, isInCart }) => {
             disabled={isInCart}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all duration-200 ${
               isInCart
-                ? 'bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 cursor-default'
-                : 'bg-primary/15 text-primary-300 border border-primary/30 hover:bg-primary/25 hover:border-primary/50 active:scale-95'
+                ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 cursor-default'
+                : 'bg-primary/10 dark:bg-primary/15 text-primary-600 dark:text-primary-300 border border-primary/20 dark:border-primary/30 hover:bg-primary/20 dark:hover:bg-primary/25 hover:border-primary/40 dark:hover:border-primary/50 active:scale-95'
             }`}
           >
             {isInCart ? (
@@ -108,6 +109,8 @@ const ProductCard = ({ product, onAddToCart, isInCart }) => {
       </div>
     </div>
   )
-}
+})
+
+ProductCard.displayName = 'ProductCard'
 
 export default ProductCard

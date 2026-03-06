@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useCallback } from 'react'
+import { createContext, useState, useEffect, useCallback, useMemo } from 'react'
 import { getCart, saveCart, removeCart } from '../utils/localStorage'
 import { useAuth } from '../hooks/useAuth'
 import toast from 'react-hot-toast'
@@ -74,26 +74,29 @@ export const CartProvider = ({ children }) => {
     [cartItems]
   )
 
-  const cartTotal = cartItems.reduce(
-    (total, item) => total + item.price * item.quantity,
-    0
+  const cartTotal = useMemo(
+    () => cartItems.reduce((total, item) => total + item.price * item.quantity, 0),
+    [cartItems]
   )
 
-  const cartCount = cartItems.reduce(
-    (count, item) => count + item.quantity,
-    0
+  const cartCount = useMemo(
+    () => cartItems.reduce((count, item) => count + item.quantity, 0),
+    [cartItems]
   )
 
-  const value = {
-    cartItems,
-    cartTotal,
-    cartCount,
-    addToCart,
-    removeFromCart,
-    updateQuantity,
-    clearCart,
-    isInCart,
-  }
+  const value = useMemo(
+    () => ({
+      cartItems,
+      cartTotal,
+      cartCount,
+      addToCart,
+      removeFromCart,
+      updateQuantity,
+      clearCart,
+      isInCart,
+    }),
+    [cartItems, cartTotal, cartCount, addToCart, removeFromCart, updateQuantity, clearCart, isInCart]
+  )
 
   return (
     <CartContext.Provider value={value}>

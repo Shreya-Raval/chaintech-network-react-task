@@ -1,105 +1,101 @@
-# 🛒 E-Commerce Dashboard
+# 🛍️ ShopVault — E-Commerce Dashboard
 
-A modern, full-featured E-Commerce Dashboard built with **React**, **Vite**, and **Tailwind CSS**. This project features session-based authentication, protected routing, cart management, and a polished dark-themed design system.
+A modern, fully-featured e-commerce dashboard built with **React**, **Vite**, and **Tailwind CSS**. Features a complete authentication system, product browsing with live API integration, cart management, user profiles, and a polished dark/light mode UI.
 
 ---
 
-## 🚀 Tech Stack
+## ✨ Features
+
+### 🔐 Authentication
+- **Login & Register** pages with split-layout, glassmorphism design
+- **Session management** with 5-minute TTL and auto-logout with toast
+- **Demo account** seeded on first load: `demo@shopvault.com` / `demo1234`
+- **Protected routes** redirect unauthenticated users to login
+
+### 🏠 Dashboard
+- Welcome banner with user name and date
+- Gradient stat cards: Total Products, Cart Items, Cart Total, Profile Completeness
+- Recently added to cart section with empty state
+- Quick actions grid (Browse Products, View Cart, Edit Profile)
+- Live session countdown timer
+
+### 🛒 Products
+- **Live API** integration with [DummyJSON](https://dummyjson.com/products)
+- **Debounced search** (300ms) with category filters and sort options
+- **Infinite scroll** via IntersectionObserver
+- Skeleton loading (8 animated placeholders), error retry, empty state
+- Product cards with image, category badge, star rating, discount badge, add-to-cart
+
+### 🛍️ Cart
+- Per-user cart storage (`shopvault_cart_{email}`)
+- Quantity stepper (+/−), item subtotal, smooth remove animation
+- Sticky order summary sidebar with checkout button
+- Empty cart state with "Start Shopping" CTA
+
+### 👤 Profile
+- Two-tab layout: **My Profile** (avatar, stats) and **Edit Profile**
+- Password change with current password verification
+- Real-time password match indicator
+
+### 🎨 Design System
+- **Dark/Light mode** toggle with localStorage persistence
+- Indigo + Amber color palette with custom Tailwind config
+- Google Font **Sora** typography
+- Entrance animations, hover effects, glassmorphism
+- Fully responsive: mobile, tablet, and desktop
+
+---
+
+## 🛠️ Tech Stack
 
 | Technology | Purpose |
 |---|---|
-| [React 19](https://react.dev/) | UI library |
-| [Vite](https://vitejs.dev/) | Build tool & dev server |
-| [Tailwind CSS v3](https://tailwindcss.com/) | Utility-first CSS framework |
-| [React Router v6](https://reactrouter.com/) | Client-side routing |
-| [react-hot-toast](https://react-hot-toast.com/) | Toast notifications |
-| [lucide-react](https://lucide.dev/) | Icon library |
+| React 19 | UI framework |
+| Vite 7 | Build tool & dev server |
+| Tailwind CSS | Utility-first styling |
+| React Router v6 | Client-side routing |
+| Lucide React | Icon library |
+| React Hot Toast | Toast notifications |
+| DummyJSON API | Product data source |
 
 ---
 
-## 📁 Project Structure
+## 📁 Folder Structure
 
 ```
 src/
-├── assets/                  # Static assets (images, fonts, etc.)
+├── assets/
 ├── components/
-│   ├── ui/                  # Reusable UI components
-│   │   ├── Button.jsx       # Button with variants & sizes
-│   │   ├── Input.jsx        # Form input with label & error states
-│   │   ├── Badge.jsx        # Status badges with color variants
-│   │   ├── Toast.jsx        # Toast notification helpers
-│   │   ├── Spinner.jsx      # Loading spinner
-│   │   └── Modal.jsx        # Modal dialog with backdrop
-│   └── layout/              # Layout components
-│       ├── Navbar.jsx        # Top navigation bar
-│       ├── Sidebar.jsx       # Side navigation panel
-│       └── ProtectedRoute.jsx # Auth guard for protected pages
+│   ├── ui/              # ProductCard
+│   └── layout/          # Navbar, Sidebar, DashboardLayout, ProtectedRoute
 ├── context/
-│   ├── AuthContext.jsx       # Authentication state & methods
-│   └── CartContext.jsx       # Shopping cart state & methods
+│   ├── AuthContext.jsx   # Login/register/logout/updateProfile
+│   ├── CartContext.jsx    # Per-user cart with localStorage
+│   └── ThemeContext.jsx   # Dark/light mode toggle
 ├── hooks/
-│   ├── useAuth.js            # Custom hook for AuthContext
-│   └── useCart.js            # Custom hook for CartContext
+│   ├── useAuth.js
+│   ├── useCart.js
+│   └── useProducts.js    # DummyJSON API hook
 ├── pages/
-│   ├── Login.jsx             # Login page
-│   ├── Register.jsx          # Registration page
-│   ├── Dashboard.jsx         # Main dashboard (protected)
-│   ├── Products.jsx          # Product listing (protected)
-│   ├── Cart.jsx              # Shopping cart (protected)
-│   └── Profile.jsx           # User profile (protected)
+│   ├── Login.jsx
+│   ├── Register.jsx
+│   ├── Dashboard.jsx
+│   ├── Products.jsx
+│   ├── Cart.jsx
+│   ├── Profile.jsx
+│   └── NotFound.jsx       # Custom 404
 ├── utils/
-│   ├── localStorage.js       # LocalStorage helper functions
-│   └── session.js            # Session management (5-min TTL)
-├── App.jsx                   # Router configuration
-├── main.jsx                  # App entry point
-└── index.css                 # Global styles & Tailwind directives
+│   └── localStorage.js   # Users, sessions, per-user cart helpers
+├── App.jsx
+└── main.jsx
 ```
 
 ---
 
-## 🔐 Authentication & Session Management
-
-- **Session-based auth** using `localStorage` (no backend required)
-- **5-minute TTL** — sessions automatically expire after 5 minutes of inactivity
-- **ProtectedRoute** component guards all authenticated pages
-- Expired sessions are auto-cleaned and users are redirected to `/login`
-
----
-
-## 🗺️ Routing
-
-| Path | Page | Access |
-|---|---|---|
-| `/` | Redirects to `/login` | Public |
-| `/login` | Login | Public |
-| `/register` | Register | Public |
-| `/dashboard` | Dashboard | 🔒 Protected |
-| `/products` | Products | 🔒 Protected |
-| `/cart` | Cart | 🔒 Protected |
-| `/profile` | Profile | 🔒 Protected |
-
----
-
-## 🎨 Design System
-
-The app uses a custom **dark-themed** design system configured in `tailwind.config.js`:
-
-- **Primary**: `#6366f1` (Indigo) — buttons, links, focus rings
-- **Accent**: `#f59e0b` (Amber) — highlights, badges, CTAs
-- **Background**: `#0f172a` — main dark background
-- **Surface**: `#1e293b` — cards, panels, elevated surfaces
-- **Text**: Slate scale (`slate-100` to `slate-500`)
-- **Font**: [Sora](https://fonts.google.com/specimen/Sora) from Google Fonts
-- **Dark Mode**: Enabled via Tailwind's `class` strategy
-
----
-
-## ⚙️ Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
-
-- [Node.js](https://nodejs.org/) (v18 or higher)
-- npm (comes with Node.js)
+- Node.js 18+ and npm
 
 ### Installation
 
@@ -107,52 +103,55 @@ The app uses a custom **dark-themed** design system configured in `tailwind.conf
 # Clone the repository
 git clone https://github.com/Shreya-Raval/chaintech-network-react-task.git
 
-# Navigate to the project directory
+# Navigate to the project
 cd chaintech-network-react-task
 
 # Install dependencies
 npm install
 
-# Start the development server
+# Start development server
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173`.
+The app will be available at `http://localhost:5173`
 
 ### Build for Production
 
 ```bash
 npm run build
+npm run preview
 ```
-
-The optimized output will be in the `dist/` directory.
 
 ---
 
-## 📦 Available Scripts
+## 🔑 Demo Credentials
+
+| Field | Value |
+|---|---|
+| Email | `demo@shopvault.com` |
+| Password | `demo1234` |
+
+> The demo user is automatically created on first visit if no users exist.
+
+---
+
+## 📋 Available Scripts
 
 | Script | Description |
 |---|---|
-| `npm run dev` | Start Vite dev server with HMR |
+| `npm run dev` | Start development server |
 | `npm run build` | Build for production |
-| `npm run preview` | Preview the production build locally |
-| `npm run lint` | Run ESLint for code quality |
+| `npm run preview` | Preview production build |
+| `npm run lint` | Run ESLint |
 
 ---
 
-## 🧩 Reusable UI Components
+## 🌐 Live Demo
 
-| Component | Features |
-|---|---|
-| `Button` | Variants: primary, secondary, accent, ghost, danger · Sizes: sm, md, lg |
-| `Input` | Label, error state, forwarded ref support |
-| `Badge` | Variants: default, primary, accent, success, warning, danger |
-| `Modal` | Backdrop blur, Escape key close, scroll lock |
-| `Spinner` | Sizes: sm, md, lg · Animated loading indicator |
-| `Toast` | Success, error, loading helpers via react-hot-toast |
+🔗 [Live Demo](#) *(deployment link placeholder)*
 
 ---
 
 ## 📄 License
 
-This project is created as part of a task assignment for **Chaintech Network**.
+This project was built as a task for **Chaintech Network**.

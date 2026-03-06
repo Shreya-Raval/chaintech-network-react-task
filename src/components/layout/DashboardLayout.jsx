@@ -6,7 +6,7 @@ const DashboardLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return (
-    <div className="min-h-screen bg-dark-bg font-sora">
+    <div className="min-h-screen bg-slate-50 dark:bg-dark-bg font-sora transition-colors duration-300">
       {/* Sidebar */}
       <Sidebar
         isOpen={sidebarOpen}
@@ -18,8 +18,8 @@ const DashboardLayout = ({ children }) => {
         {/* Navbar */}
         <Navbar onToggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
 
-        {/* Page content */}
-        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+        {/* Page content with page enter animation */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 animate-page-enter">
           {children}
         </main>
       </div>
